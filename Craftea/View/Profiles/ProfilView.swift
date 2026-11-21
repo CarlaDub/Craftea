@@ -11,37 +11,37 @@ struct ProfilView: View {
     @Environment(Session.self) private var session
     @State private var image: UIImage? = nil
     @State private var showingImagePicker = false
+    @State private var showSettings = false
     let viewModel = HobbyViewModel()
 
     var body: some View {
         NavigationStack {
-            ZStack {
+            ZStack(alignment: .topTrailing) {
                 // background
                 Color.background.ignoresSafeArea()
                 LinearGradient(gradient: Gradient(colors: [.clear, .primaryPurpule.opacity(0.1)]),
                                startPoint: .topLeading, endPoint: .bottom)
                 .ignoresSafeArea()
                 // Contenue Principal
-                ScrollView {
+                ScrollView(showsIndicators: false) {
                     VStack (spacing: 24) {
                         //Profil Image
                         VStack (spacing: 8) {
                             ProfileProgressView(
-                                progress: 0.75, // 75% rempli
+                                progress: session.currentUser.niveau, // 75% rempli
                                 image: Image(session.currentUser.imageProfil ?? "placeholder")
                             )
                             HStack(spacing: 8) {
                                 Text("\(session.currentUser.name)").mainTitle()
                                 ScoreTag(score: session.currentUser.score)                          }
 
-                        }
+                        }.padding(.top, 50)
                         // Section Loisirs
                         VStack(alignment: .leading, spacing: 8) {
                             Text("Mes Loisirs").mainTitle()
-                                .padding(.horizontal, 15)
+                                .padding(.horizontal, 24)
                             ScrollView(.horizontal, showsIndicators: false) {
-                                HStack (spacing: 12) {
-                                    VerticalHobbyView(hobby: viewModel.hobbies[0])
+                                HStack (spacing: 16) {
                                     ForEach(session.currentUser.favoritesHobby) { hobby in
                                         VerticalHobbyView(hobby: hobby)
                                     }
@@ -55,9 +55,9 @@ struct ProfilView: View {
                             !session.currentUser.favoriteEquipment.isEmpty || !session.currentUser.favoriteEquipmentPro.isEmpty {
                             VStack(alignment: .leading, spacing: 8) {
                                 Text("Mes Favoris").mainTitle()
-                                    .padding(.horizontal, 15)
+                                    .padding(.horizontal, 24)
                                 ScrollView(.horizontal, showsIndicators: false) {
-                                    HStack (spacing: 12) {
+                                    HStack (spacing: 16) {
                                         ForEach(session.currentUser.favoriteEquipment) { materiel in
                                             MaterielCard(materiel: materiel)
                                             ForEach(session.currentUser.favoriteEquipmentPro) { materiel in
@@ -76,7 +76,7 @@ struct ProfilView: View {
                     // Section Articles de troc
                     VStack(alignment: .leading) {
                         Text("Mes Articles de Troc").mainTitle()
-                            .padding(.horizontal, 15)
+                            .padding(.horizontal, 24)
                         ScrollView(.horizontal, showsIndicators: false) {
                             HStack {
                                 ForEach(materielsOccasion) { materiel in
@@ -84,21 +84,32 @@ struct ProfilView: View {
                                 }
                             }
                             .padding(.horizontal, 24)
-
-
-                            // Bouton dans la Toolbar
-                            .toolbar {
-                                ToolbarItem(placement: .topBarTrailing) {
-                                    NavigationLink(destination: SettingsView(user: session.currentUser)) {
-                                        Image(systemName: "gearshape.fill")
-                                    }
-                                    .tint(.primaryPurpule)
-
-                                }
-                            }
                         }
                     }
                 }
+                Button(action: { showSettings = true }) {
+                    Image(systemName: "gearshape.fill")
+                        .foregroundColor(Color("primaryPurpule"))
+                }
+                .accessibilityLabel("Paramètres")
+                .font(.system(size: 22))
+                .padding(10)
+                .glassEffect()
+                .padding(.trailing, 20).padding(.top, 60)
+                .ignoresSafeArea(edges: .top)
+            } //final ZStack
+
+//            .toolbar {
+//                ToolbarItem(placement: .navigationBarTrailing) {
+//                    Button(action: { showSettings = true }) {
+//                        Image(systemName: "gearshape.fill")
+//                            .foregroundColor(Color("primaryPurpule"))
+//                    }
+//                    .accessibilityLabel("Paramètres")
+//                }
+//            }
+            .fullScreenCover(isPresented: $showSettings) {
+                SettingsFullScreen(user: session.currentUser)
             }
         }
     }
@@ -108,4 +119,5 @@ struct ProfilView: View {
     ProfilView()
         .environment(Session(currentUser: users[0]))
         .environment(HobbyViewModel())
+        .environment(ConversationStore())
 }

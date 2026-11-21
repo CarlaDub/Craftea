@@ -17,40 +17,43 @@ public struct MessageCardView: View {
                     .fill(Color.almostWhite)
                     .shadow(color: .gray.opacity(0.2), radius: 4, x: 0, y: 2)
                     .frame(width: 370, height: 100)
-                
+
                 HStack {
-                    Image(otherUser.imageProfil ?? "placeholder") .resizable() .scaledToFill() .frame(width: 70, height: 70) .clipShape(Circle()) .shadow(color: .black.opacity(0.25), radius: 5, x: 0, y: 2) .padding(.leading)
-                    
+                    NavigationLink(destination: UserProfilView(otherUser: otherUser)){
+                        Image(otherUser.imageProfil ?? "placeholder") .resizable() .scaledToFill() .frame(width: 70, height: 70) .clipShape(Circle())
+                            //.shadow(color: .black.opacity(0.25), radius: 5, x: 0, y: 2)
+                            .padding(.leading)
+                    }
+                   
+
                     VStack(alignment: .leading, spacing: 6) {
-                        
+
                         HStack {
                             Text(otherUser.name)
-                                .font(.headline)
-                                .fontWeight(.bold)
-                            
-                            HStack(spacing: 3) {
-                                Image(systemName: "star.fill")
-                                    .foregroundColor(.yellow)
-                                Text(String(format: "%.1f", otherUser.score))
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
-                            }
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 3)
-                            .background(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .fill(Color.yellow.opacity(0.15))
-                            )
+                                .mainText(bold: true).foregroundStyle(Color.textPrimary).multilineTextAlignment(.leading)
+                            ScoreTag(score: otherUser.score)
+
+//                            HStack(spacing: 3) {
+//                                Image(systemName: "star.fill")
+//                                    .foregroundColor(.yellow)
+//                                Text(String(format: "%.1f", otherUser.score))
+//                                    .font(.subheadline)
+//                                    .foregroundColor(.secondary)
+//                            }
+//                            .padding(.horizontal, 6)
+//                            .padding(.vertical, 3)
+//                            .background(
+//                                RoundedRectangle(cornerRadius: 6)
+//                                    .fill(Color.yellow.opacity(0.15))
+//                            )
                             Spacer()
                         }
-                        
-                        
+
+
                         Text(conversation.theme)
-                            .font(.subheadline)
-                            .foregroundColor(.textSecondary)
-                            .lineLimit(1)
-                        
-                        
+                            .secondaryText().foregroundColor(.textSecondary).multilineTextAlignment(.leading)
+
+
                         if let lastMessage = conversation.messages.last {
                             Text(lastMessage.content)
                                 .font(.footnote)
